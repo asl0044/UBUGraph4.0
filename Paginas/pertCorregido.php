@@ -31,6 +31,7 @@
 			require_once ("Image/GraphViz.php");
 			require_once("./Actividad.php");
 			require_once("./funciones.php");
+			include ("./Nodo.php");
 			//Cargamos el idioma
 			require_once("../".idioma());
 			
@@ -69,6 +70,7 @@
 			{
 				$nombres = $_POST["nombres"];
 				$precedencias = $_POST["precedencias"];
+				$precedenciasRoy = $_POST["precedencias"];
 				$duraciones = $_POST["duraciones"];
 				$resolver = false;
 				
@@ -104,6 +106,68 @@
 						header("Location: ../paginas/error.php?e=".urlencode($texto["Pert_2"]));
 					}
 				}		
+				
+				//////////////RESOLUCION ROY//////////////
+			
+				$grafoRoy = array();
+				
+				
+				/////Generamos el conjunto de nodos////
+				for($i = 0; $i < count($nombres); $i++)
+				{
+					$grafoRoy[$nombres[$i]] = new Nodo($nombres[$i], $duraciones[$i]);
+					$precedenciasRoy[$i] = explode(" ", $precedenciasRoy[$i]);			
+					foreach($precedenciasRoy[$i] as $value)
+					{
+						if($value != "")
+						{
+							$grafoRoy[$nombres[$i]]->addNodoPrecedente($value);
+						}
+					}
+				}
+				
+				//Establecemos las precedencias
+				for($i = 0; $i < count($nombres); $i++)
+				{
+					foreach($precedenciasRoy[$i] as $value)
+					{
+						if($value != "")
+						{
+							$grafoRoy[$value]->addNodoPosterior($nombres[$i]);
+						}
+					}
+				}
+				
+				$inicio = new Nodo("Inicio", 0);
+				$fin = new Nodo("Fin", 0);
+				
+				foreach($grafoRoy as $value)
+				{
+					if(count($value->getPrecedentes()) == 0)
+					{
+						$inicio->addNodoPosterior($value->getID());
+						$value->addNodoPrecedente($inicio->getID());
+					}
+					
+					if(count($value->getPosteriores()) == 0)
+					{
+						$fin->addNodoPrecedente($value->getID());
+						$value->addNodoPosterior($fin->getID());
+					}
+				}
+				
+				$grafoRoy["Inicio"] = $inicio;
+				$grafoRoy["Fin"] = $fin;
+				
+				//Calculamos los tiempos early y late de inicio
+				calcularTEI($grafoRoy, $grafoRoy["Inicio"]);
+				foreach($grafoRoy as $value)
+				{
+					$value->setTLI($grafoRoy["Fin"]->getTEI());
+				}	
+				calcularTLI($grafoRoy, $grafoRoy["Fin"]);
+				
+				
 			
 				//////////////RESOLUCION PERT//////////////
 			
@@ -288,6 +352,8 @@
 									$grafo["F".$nFicticias] = new Actividad("F".$nFicticias, 0);
 									$grafo["F".$nFicticias]->establecerNodoOrigen($value->getNodoDestino());
 									$grafo["F".$nFicticias]->establecerNodoDestino($value2->getNodoDestino());
+									//Añado la actividad precedente (Adrián)
+									$grafo["F".$nFicticias]->addActividadPrecedente($value->getID());
 									$grafo["F".$nFicticias]->setFicticia();
 									$nFicticias++;
 								}
@@ -416,12 +482,16 @@
 										
 										$grafo["F".$nFicticias] = new Actividad("F".$nFicticias, 0);
 										$grafo["F".$nFicticias]->establecerNodoOrigen($value->getNodoDestino());
+										//Añado la actividad precedente (Adrián)
+										$grafo["F".$nFicticias]->addActividadPrecedente($value->getID());
 										$grafo["F".$nFicticias]->establecerNodoDestino($original + 2);
 										$grafo["F".$nFicticias]->setFicticia();
 										$nFicticias++;
 										
 										$grafo["F".$nFicticias] = new Actividad("F".$nFicticias, 0);
 										$grafo["F".$nFicticias]->establecerNodoOrigen($value2->getNodoDestino());
+										//Añado la actividad precedente (Adrián)
+										$grafo["F".$nFicticias]->addActividadPrecedente($value2->getID());
 										$grafo["F".$nFicticias]->establecerNodoDestino($original + 2);
 										$grafo["F".$nFicticias]->setFicticia();
 										$nFicticias++;
@@ -474,12 +544,16 @@
 										
 										$grafo["F".$nFicticias] = new Actividad("F".$nFicticias, 0);
 										$grafo["F".$nFicticias]->establecerNodoOrigen($value->getNodoDestino());
+										//Añado la actividad precedente (Adrián)
+										$grafo["F".$nFicticias]->addActividadPrecedente($value->getID());
 										$grafo["F".$nFicticias]->establecerNodoDestino($maximo + 1);
 										$grafo["F".$nFicticias]->setFicticia();
 										$nFicticias++;
 										
 										$grafo["F".$nFicticias] = new Actividad("F".$nFicticias, 0);
 										$grafo["F".$nFicticias]->establecerNodoOrigen($value2->getNodoDestino());
+										//Añado la actividad precedente (Adrián)
+										$grafo["F".$nFicticias]->addActividadPrecedente($value2->getID());
 										$grafo["F".$nFicticias]->establecerNodoDestino($maximo + 1);
 										$grafo["F".$nFicticias]->setFicticia();
 										$nFicticias++;
@@ -536,6 +610,8 @@
 							$grafo["F".$nFicticias] = new Actividad("F".$nFicticias, 0);
 							$grafo["F".$nFicticias]->establecerNodoOrigen($cambio);
 							$grafo["F".$nFicticias]->establecerNodoDestino($cambio + 1);
+							//Añado la actividad precedente (Adrián)
+							$grafo["F".$nFicticias]->addActividadPrecedente($value2->getID());
 							$grafo["F".$nFicticias]->setFicticia();
 							$nFicticias++;
 						}
@@ -587,9 +663,65 @@
 					}
 				}	
 				
+				//Comprobamos los nodos comparando con el grafo ROY (Adrián)
+				//Recorremos cada una de las actividades del grafo(Adrián)
+				// Comprobación sin ficticias
+				foreach($grafo as $value)
+				{
+				//El estado actual es que parece que arregla los casos en los que
+				//hay varias flechas que llegan a un nodo (como me dijo) pero falla alguna
+				//de una sola flecha como el Problema 1 
+				//PROBLEMA 1 OK
+				//PROBLEMA 2 OK PERO LO RESUELVE DE OTRA MANERA
+				//PROBLEMA 3 
+				//PROBLEMA 4 Falla algún nodo
+				//PROBLEMA 5 
+				
+				//Hay un problema con las ficticias ya que las holguras se calculan a partir de los nodos y si no se tienen...
+				//No se me ocurre ninguna manera para solucionar este problemas con las ficticias
+					if(!$value->getFicticia()){
+						$nodoRoy = $grafoRoy[$value->getID()];
+						$nodos[$value->getNodoDestino()]["tei"] = $nodoRoy->getTEI() + $nodoRoy->getDuracion();
+						$nodos[$value->getNodoDestino()]["tli"] = $nodoRoy->getTLI() + $nodoRoy->getDuracion();
+					}
+					//Comparamos una actividad con el resto (Adrián)
+					foreach($grafo as $value2){
+						if($value != $value2){
+							if($value->getNodoDestino() == $value2->getNodoDestino()){
+								if(!$value->getFicticia() and !$value2->getFicticia()){
+									$tei1 = $grafoRoy[$value->getID()]->getTEI() + $grafoRoy[$value->getID()]->getDuracion();
+									$tli1 = $grafoRoy[$value->getID()]->getTLI() + $grafoRoy[$value->getID()]->getDuracion();
+									$tei2 = $grafoRoy[$value2->getID()]->getTEI() + $grafoRoy[$value2->getID()]->getDuracion();
+									$tli2 = $grafoRoy[$value2->getID()]->getTLI() + $grafoRoy[$value2->getID()]->getDuracion();
+								
+									if($nodos[$value->getNodoDestino()]["tei"] < max($tei1,$tei2))
+										$nodos[$value->getNodoDestino()]["tei"] = max($tei1,$tei2);
+									if($nodos[$value->getNodoDestino()]["tli"] > min($tli1,$tli2))
+										$nodos[$value->getNodoDestino()]["tli"] = min($tli1,$tli2);
+								}
+							}							
+						}
+					}				
+				}
+								
+				//Comprobación de ficticias (Adrian)
+				foreach($grafo as $value){
+					$precedentes = array();
+					if($value->getFicticia()){
+						foreach($grafo as $value2){
+							if($value->getNodoDestino() == $value2->getNodoDestino()){
+								$precedentes[$value->getID()] = $nodos[$value->getNodoOrigen()]["tei"] + $value->getDuracion();
+							}
+						}							
+					}else
+						continue;
+					$nodos[$value->getNodoDestino()]["tei"] = max($precedentes);
+				}
+				
+				
 				//Añadimos los nodos al grafo
 				for($i = 1; $i <= count($nodos); $i++)
-				{	
+				{
 					$gv->addNode($i, array("label"=>"({$nodos[$i]["tei"]}){$i}({$nodos[$i]["tli"]})"));
 					//Si es necesario obtenemos la respuesta a la pregunta 4
 					if(($i == count($nodos)) && $resolver)
@@ -684,7 +816,44 @@
 			else
 			{
 				header("Location: ../paginas/error.php?e=".urlencode($texto["Pert_3"]));
-			}								
+			}
+
+				/**
+				  * Calcula los TEI para los nodos de un grafo
+				  * @param grafo array de Nodo con que conforman el grafo
+				  * @param n El nodo "INICIO" del grafo
+				  */
+				function calcularTEI($grafo, $n)
+				{
+					foreach($n->getPosteriores() as $value)
+					{
+						$grafo[$value]->setTEI(max($grafo[$value]->getTEI(), $n->getTEI() + $n->getDuracion()));
+					}
+					
+					foreach($n->getPosteriores() as $value)
+					{
+						calcularTEI($grafo, $grafo[$value]);
+					}
+				}
+				
+				 /**
+				  * Calcula los TLI para los nodos de un grafo
+				  * @param grafo array de Nodo con que conforman el grafo
+				  * @param n El nodo "FIN" del grafo
+				  */
+				function calcularTLI($grafo, $n)
+				{
+					//TLI = TLI(+1) - D(0)
+					foreach($n->getPrecedentes() as $value)
+					{
+						$grafo[$value]->setTLI(min($grafo[$value]->getTLI(), $n->getTLI() - $grafo[$value]->getDuracion()));
+					}
+					
+					foreach($n->getPrecedentes() as $value)
+					{
+						calcularTLI($grafo, $grafo[$value]);
+					}
+				}
 		?>
 	</body>
 </html>

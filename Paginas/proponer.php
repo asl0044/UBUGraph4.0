@@ -120,7 +120,7 @@
 						echo "\n</table><br>";
 						//Botones para resolver los grafos en los dos posibles formatos.
 						echo "\n<input type=\"submit\" formnovalidate formaction=\"./roy.php\" value=\"{$texto["Proponer_10"]}\"/> ";
-						echo "\n<input type=\"submit\" formnovalidate formaction=\"./pert.php\" value=\"{$texto["Proponer_11"]}\"/>";
+						echo "\n<input type=\"submit\" formnovalidate formaction=\"./pertCorregido.php\" value=\"{$texto["Proponer_11"]}\"/>";
 					}
 					
 					//escribimos los datos antiguos en campos ocultos para que se envien en la siguiente iteracion o en la resolucion del problema.
