@@ -4,7 +4,7 @@
 	require 'mustache/src/Mustache/Autoloader.php';
 	Mustache_Autoloader::register();
 	
-	function dibujarTabla($nombres, $precedencias, $duraciones, $metodo){
+	function dibujarTabla($nombres, $precedencias, $duraciones){
 		require_once("funciones.php");
 		require("../".idioma());
 		

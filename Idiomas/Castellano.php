@@ -157,6 +157,7 @@
 		"Funciones_menu_2"=>"Proponer",
 		"Funciones_menu_3"=>"Histórico",
 		"Funciones_menu_4"=>"Tutoria",
+		"Funciones_menu_5"=>"Generar XML",
 		
 		"Funciones_cabecera_1"=>"Logueado como",
 		

@@ -23,9 +23,10 @@
 		$titulos[1] = $texto["Funciones_menu_2"];
 		$titulos[2] = $texto["Funciones_menu_3"];
 		$titulos[3] = $texto["Funciones_menu_4"];
+		$titulos[4] = $texto["Funciones_menu_5"];
 		
 		//Redireccion de cada boton
-		$enlaces = array(0=>"generar", 1=>"proponer", 2=>"historico", 3=>"tutoria");
+		$enlaces = array(0=>"generar", 1=>"proponer", 2=>"historico", 3=>"tutoria", 4=>"generarXML");
 		
 		for($i = 0; $i < count ($titulos); $i++) //Mientras queden campos en el array crea un nuevo boton
 		{

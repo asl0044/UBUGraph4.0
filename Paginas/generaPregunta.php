@@ -19,17 +19,15 @@
 		<?php
 			
 			$numAct = $_POST["numActividades"];
-			$metodo = $_POST["metodo"];
 			$probabilidad = $_POST["probabilidad"];
 			$ids = $ids = array(0 => "A", 1 => "B", 2 => "C", 3 => "D", 4 => "E", 5 => "F", 6 => "G", 7 => "H", 8 => "I", 9 => "J", 10 => "K", 11 => "L", 12 => "M", 13 => "N", 14 => "O", 15 => "P", 16 => "Q", 17 => "R", 18 => "S", 19 => "T", 20 => "U", 21 => "V", 22 => "W", 23 => "X", 24 => "Y", 25 => "Z");
-			
-			$numPreguntas = $_POST["numPreguntas"];
 		
-			$contNumericas = 2;
-			$contVF = 2;
-			$contSelSimple = 2;
-			$contSelMult = 2;
+			$contNumericas = $_POST["numericas"];
+			$contVF = $_POST["vf"];
+			$contSelSimple = $_POST["selSimple"];
+			$contSelMult = $_POST["selMult"];
 			
+			$numPreguntas = $contNumericas + $contVF + $contSelSimple + $contSelMult;
 			
 			$file = fopen("./XML/prueba.xml","w");
 			fputs($file,"<?xml version=\"1.0\" ?>");
@@ -42,7 +40,7 @@
 				
 				
 				generarTablaPrecedencias($numAct,$probabilidad, $ids, $nombres, $precedencias, $duraciones);
-				$tabla = dibujarTabla($nombres, $precedencias, $duraciones, $metodo);
+				$tabla = dibujarTabla($nombres, $precedencias, $duraciones);
 				$grafo = null;
 				
 				$hecha = false;
