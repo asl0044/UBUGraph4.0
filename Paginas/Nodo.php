@@ -48,6 +48,12 @@
 		 */
 		private $tli = 0;
 		
+		/**
+		 * Si el nodo pertenece al camino crítico
+		 *
+		 */
+		private $critico = false;
+		
 		//////CONSTRUCTORES//////
 		
 		
@@ -200,5 +206,23 @@
 		 {
 			 $this->tli = $tiempo;
 		 }
+		 
+		 
+		 /**
+		 * Devuelve si el nodo está en el camino crítico.
+		 * @return si está en el camino crítico o no
+		 */
+		 public function getCritico(){
+			 return $this->critico;
+		 }
+		 
+		 /**
+		 * Convierte este nodo en parte del camino crítico
+		 */
+		 public function setCritico()
+		 {
+			 $this->critico = true;
+		 }
+		
 	}
 ?>

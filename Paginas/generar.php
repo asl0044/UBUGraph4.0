@@ -8,7 +8,7 @@
 	}
 	require_once("funciones.php");
 	//Cargamos el idioma
-	require_once("../".idioma());
+	require("../".idioma());
 	
 	$conexion = conectarse();
 	
@@ -43,8 +43,13 @@
 					<option value="pert">PERT</option>
 					<option value="roy">ROY</option>
 				</select>	             
+				<label class="ajustado"><b>Número de preguntas a generar</b></label>
+				<input class="ajustado" type="number" name="numPreguntas"><BR>
+				
 	 			<input class="ajustado" type="submit" value="<?php echo $texto["Generar_4"]; ?>">
+				<input class="ajustado" type="submit" onclick = "this.form.action = 'generaPregunta.php'" value="Generar XML">
 	        </form>
+			
         </div>
 	</body>
 </html>
