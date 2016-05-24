@@ -179,8 +179,8 @@
 		echo "</li></ul>";
 		
 		echo "\n<p>{$texto["Funciones_evaluar_7"]}</p>";
-		echo "\n<ul><li>{$texto["Funciones_evaluar_3"]}4 {$correcciones["RESPUESTA_4"]}</li>";
-		echo "\n<li>{$texto["Funciones_evaluar_4"]}4 {$respuestas["RESPUESTA_4"]}";
+		echo "\n<ul><li>{$texto["Funciones_evaluar_3"]} {$correcciones["RESPUESTA_4"]}</li>";
+		echo "\n<li>{$texto["Funciones_evaluar_4"]} {$respuestas["RESPUESTA_4"]}";
 		if($correcciones["RESPUESTA_4"] == $respuestas["RESPUESTA_4"])
 		{
 			$calificacion++;

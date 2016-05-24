@@ -31,6 +31,7 @@
 			require_once ("Image/GraphViz.php");
 			include ("./Nodo.php");
 			require_once ("./funciones.php");
+			require_once("./funcionesRoy.php");
 			//Cargamos el idioma
 			require_once("../".idioma());
 	
@@ -82,7 +83,7 @@
 					$consulta = "SELECT * FROM respuestas WHERE ID_GRAFO = (SELECT ID_GRAFO FROM grafos WHERE CALIFICACION IS NULL AND ID_USUARIO = {$_SESSION["id_usuario"]})";
 					$result = $conexion->query($consulta);
 					$tuplas = $result->num_rows;			
-					//Si las respuestas no están almacenadas lo hacemos ahora.
+					//Si las respuestas no est�n almacenadas lo hacemos ahora.
 					if($tuplas == 0)
 					{
 						$consulta = "INSERT INTO respuestas(ID_GRAFO, RESPUESTA_1, RESPUESTA_2, RESPUESTA_3, RESPUESTA_4, RESPUESTA_5) VALUES((SELECT ID_GRAFO FROM grafos WHERE CALIFICACION IS NULL AND ID_USUARIO = {$_SESSION["id_usuario"]}), {$_POST["pregunta1"]}, {$_POST["pregunta2"]}, {$_POST["pregunta3"]}, {$_POST["pregunta4"]}, UPPER(REPLACE('{$_POST["pregunta5"]}', ' ', '')))";
@@ -107,137 +108,23 @@
 				
 				//////////////RESOLUCION ROY//////////////
 			
-				$grafo = array();
-				
-				/////Generamos el conjunto de nodos////
-				for($i = 0; $i < count($nombres); $i++)
-				{
-					$grafo[$nombres[$i]] = new Nodo($nombres[$i], $duraciones[$i]);
-					$precedencias[$i] = explode(" ", $precedencias[$i]);			
-					foreach($precedencias[$i] as $value)
-					{
-						if($value != "")
-						{
-							$grafo[$nombres[$i]]->addNodoPrecedente($value);
-						}
-					}
-				}
+				$grafo = generarNodos($nombres,$precedencias,$duraciones);
 				
 				//Establecemos las precedencias
-				for($i = 0; $i < count($nombres); $i++)
-				{
-					foreach($precedencias[$i] as $value)
-					{
-						if($value != "")
-						{
-							$grafo[$value]->addNodoPosterior($nombres[$i]);
-						}
-					}
-				}
+
+				establecerPrecedenciasRoy($grafo,$nombres,$duraciones,$precedencias);
 				
-				$inicio = new Nodo("Inicio", 0);
-				$fin = new Nodo("Fin", 0);
-				
-				foreach($grafo as $value)
-				{
-					if(count($value->getPrecedentes()) == 0)
-					{
-						$inicio->addNodoPosterior($value->getID());
-						$value->addNodoPrecedente($inicio->getID());
-					}
-					
-					if(count($value->getPosteriores()) == 0)
-					{
-						$fin->addNodoPrecedente($value->getID());
-						$value->addNodoPosterior($fin->getID());
-					}
-				}
-				
-				$grafo["Inicio"] = $inicio;
-				$grafo["Fin"] = $fin;
-				
-				//Calculamos los tiempos early y late de inicio
-				calcularTEI($grafo, $grafo["Inicio"]);
-				foreach($grafo as $value)
-				{
-					$value->setTLI($grafo["Fin"]->getTEI());
-				}	
-				calcularTLI($grafo, $grafo["Fin"]);
+				//Calculamos los tiempos
+				calcularTiempos($grafo);
 				
 				
 				/////Generamos el grafo grapviz////
-				$gv = new Image_GraphViz(true, array("rankdir"=>"LR", "size"=>"8.333,11.111!"), "ROY", false, false);
-				
-				//Añadimos los nodos al grafo
-				foreach($grafo as $value)
-				{
-					//$gv->addNode($value->getID(), array("shape"=>"box"));
-					$gv->addNode($value->getID(), array("shape"=>"box","label"=>"<TABLE border=\"0\"><TR><TD colspan=\"2\">{$value->getID()}</TD></TR><TR><TD>{$value->getTEI()}</TD><TD>{$value->getTLI()}</TD></TR><TR><TD colspan=\"2\">{$value->getDuracion()}</TD></TR></TABLE>"));
-					//Si es necesario obtenemos la respuesta a la pregunta 4
-					if(($value->getID() == "Fin") && $resolver)
-					{
-						$respuesta4 = $value->getTEI();
-					}
+				if($resolver == false){
+					$conexion = null;
+					$preguntas = null;
 				}
-				
-				$respuesta5 = "";
-				//Añadimos los arcos
-				foreach($grafo as $value)
-				{
-					foreach($value->getPrecedentes() as $p)
-					{
-						$color = "black";
-						if(($value->getHolguraTotal() == 0) && ($grafo[$p]->getHolguraTotal() == 0))
-						{
-							$color = "red";
-							
-							if($value->getID() != "Fin")
-							{
-								//Si es necesario obtenemos la respuesta a la pregunta 5
-								if(($respuesta5 != "") && $resolver)
-								{
-									$respuesta5 = $respuesta5.",";
-								}
-								if($resolver)
-								{
-									$respuesta5 = $respuesta5.$value->getID();
-								}
-							}
-						}
-						
-						//Si es necesario obtenemos la respuesta a las pregunta 1 2 3
-						if($resolver)
-						{
-							if($value->getID() == $preguntas["NOMBRE_1"])
-							{
-								$respuesta1 = $value->getHolguraTotal();
-							}
-							
-							if($value->getID() == $preguntas["NOMBRE_2"])
-							{
-								$respuesta2 = $value->getTEI();
-							}
-							
-							if($value->getID() == $preguntas["NOMBRE_3"])
-							{
-								$respuesta3 = $value->getTLI() + $value->getDuracion();
-							}
-						}
-						
-						$gv->addEdge(array($p => $value->getID()), array("color" => $color));
-					}
-				}
-				
-				//Si es necesario guardamos las respuestas correctas en la BD
-				if($resolver)
-				{
-					$consulta = "INSERT INTO respuestas_correctas(ID_GRAFO, RESPUESTA_1, RESPUESTA_2, RESPUESTA_3, RESPUESTA_4, RESPUESTA_5) VALUES({$preguntas["ID_GRAFO"]}, {$respuesta1}, {$respuesta2}, {$respuesta3}, {$respuesta4}, '{$respuesta5}');";
-					$conexion->query($consulta);
-				}
-				
-				//Dibujamos el grafo
-				$data = $gv->fetch();
-				$data = substr($data, strpos($data, "<!--"));
+				$gv = generarGrafoRoy($grafo,$resolver,$conexion,$preguntas);
+				$data = dibujarGrafo($gv);
 				
 				//Si es necesario guardamos el grafo en la BD
 				if($resolver)
@@ -246,6 +133,7 @@
 					$conexion->query($consulta);
 					mysqli_close($conexion);
 				}
+				
 				
 				//Mostramos el grafo
 				echo "<div class=\"ampliable\" onClick=\"mostrar();\">{$data}</div>";
@@ -270,7 +158,7 @@
 				  * @param grafo array de Nodo con que conforman el grafo
 				  * @param n El nodo "INICIO" del grafo
 				  */
-				function calcularTEI($grafo, $n)
+				/*function calcularTEI($grafo, $n)
 				{
 					foreach($n->getPosteriores() as $value)
 					{
@@ -281,14 +169,14 @@
 					{
 						calcularTEI($grafo, $grafo[$value]);
 					}
-				}
+				}*/
 				
 				 /**
 				  * Calcula los TLI para los nodos de un grafo
 				  * @param grafo array de Nodo con que conforman el grafo
 				  * @param n El nodo "FIN" del grafo
 				  */
-				function calcularTLI($grafo, $n)
+				/*function calcularTLI($grafo, $n)
 				{
 					//TLI = TLI(+1) - D(0)
 					foreach($n->getPrecedentes() as $value)
@@ -300,7 +188,7 @@
 					{
 						calcularTLI($grafo, $grafo[$value]);
 					}
-				}
+				}*/
 		?>
 	</body>
 </html>

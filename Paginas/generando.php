@@ -117,6 +117,9 @@
 					}
 				echo "\n</table><br>";
 				
+				if($metodo == "pert")
+					$metodo = "pertCorregido";
+				
 				//Formulario de resolucion del grafo.
 				echo "<form id=\"generar_problema\" action=\"./{$metodo}.php\" method=\"post\">";			
 

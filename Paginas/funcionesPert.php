@@ -548,20 +548,23 @@
 		return $grafoRoy;
 	}
 	
-	function generarGrafoPert($grafo,$nodos) {
+	function generarGrafoPert($grafo,$nodos,$resolver = false,$conexion = null,$preguntas = null) {
 		$gv = new Image_GraphViz(true, array("rankdir"=>"LR", "size"=>"8.333,11.111!"), "PERT", false, false);
 		//Añadimos los nodos al grafo
 		for($i = 1; $i <= count($nodos); $i++)
 		{
 			$gv->addNode($i, array("label"=>"({$nodos[$i]["tei"]}){$i}({$nodos[$i]["tli"]})"));
+			
 			//Si es necesario obtenemos la respuesta a la pregunta 4
-			/*if(($i == count($nodos)) && $resolver)
-			{
-				$respuesta4 = $nodos[$i]["tei"];
-			}*/
+			if($resolver){
+				if($i == count($nodos))
+				{
+					$respuesta4 = $nodos[$i]["tei"];
+				}
+			}
 		}
 		
-		//$respuesta5 = "";
+		$respuesta5 = "";
 		//Añadimos los arcos
 		foreach($grafo as $value)
 		{
@@ -577,7 +580,7 @@
 				if($holgura == 0)
 				{
 					$color = "red";
-					/*
+					
 					//Si es necesario obtenemos la respuesta a la pregunta 5
 					if(($respuesta5 != "") && $resolver)
 					{
@@ -586,9 +589,9 @@
 					if($resolver)
 					{
 						$respuesta5 = $respuesta5.$value->getID();
-					}*/
+					}
 				}
-				/*
+				
 				//Si es necesario obtenemos la respuesta a las pregunta 1 2 3
 				if($resolver)
 				{
@@ -607,9 +610,15 @@
 						$respuesta3 = $nodos[$value->getNodoDestino()]["tli"];
 					}
 				}
-				*/
+				
 				$gv->addEdge(array($value->getNodoOrigen() => $value->getNodoDestino()), array("color" => $color, "label" => $value->getID()."(".$value->getDuracion().")[>{$holgura}<]"));
 			}
+		}
+			//Si es necesario guardamos las respuestas correctas en la BD
+		if($resolver)
+		{
+			$consulta = "INSERT INTO respuestas_correctas(ID_GRAFO, RESPUESTA_1, RESPUESTA_2, RESPUESTA_3, RESPUESTA_4, RESPUESTA_5) VALUES({$preguntas["ID_GRAFO"]}, {$respuesta1}, {$respuesta2}, {$respuesta3}, {$respuesta4}, '{$respuesta5}');";
+			$conexion->query($consulta);
 		}
 		return $gv;
 	}

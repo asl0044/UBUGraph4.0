@@ -4,11 +4,11 @@
 	 */
 	 $cfg = array(
 		"URL" => "www.ubugraph.es", //Contiene la URL de la pagina de la aplicacion.
-		"WIKI" => "http://www.wiki.ubugraph.duclos.es/", //Contiene la URL de la wiki
+		"WIKI" => "http://www.ubugraph_wiki.es", //Contiene la URL de la wiki
 		
 		"smtp" => "ssl://smtp.gmail.com", //SMTP de salida
 		"smtpPort" => 465, //Puerto del smtp
-		"mailUser" => "UBUGraph@gmail.com", //Usuario del correo que vamos a usar
-		"mailPass" => "UBUGraph2015" //Contraseña del correo
+		"mailUser" => "UBUGraph4@gmail.com", //Usuario del correo que vamos a usar
+		"mailPass" => "UBUGraph2016" //Contraseña del correo
 		);
 ?>

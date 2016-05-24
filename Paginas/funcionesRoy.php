@@ -98,7 +98,7 @@
 		calcularTLI($grafo, $grafo["Fin"]);
 	}
 	
-	function generarGrafoRoy($grafo){
+	function generarGrafoRoy($grafo,$resolver=false,$conexion = null,$preguntas = null){
 		$gv = new Image_GraphViz(true, array("rankdir"=>"LR", "size"=>"8.333,11.111!"), "ROY", false, false);
 		
 		//Añadimos los nodos al grafo
@@ -106,7 +106,13 @@
 		{
 			//$gv->addNode($value->getID(), array("shape"=>"box"));
 			$gv->addNode($value->getID(), array("shape"=>"box","label"=>"<TABLE border=\"0\"><TR><TD colspan=\"2\">{$value->getID()}</TD></TR><TR><TD>{$value->getTEI()}</TD><TD>{$value->getTLI()}</TD></TR><TR><TD colspan=\"2\">{$value->getDuracion()}</TD></TR></TABLE>"));
+			//Si es necesario obtenemos la respuesta a la pregunta 4
+			if(($value->getID() == "Fin") && $resolver)
+			{
+				$respuesta4 = $value->getTEI();
+			}
 		}
+		$respuesta5 = "";
 		//Añadimos los arcos
 		foreach($grafo as $value)
 		{
@@ -119,11 +125,46 @@
 					$color = "red";
 					$value->setCritico();
 					$grafo[$p]->setCritico();
+					if($value->getID() != "Fin")
+					{
+						//Si es necesario obtenemos la respuesta a la pregunta 5
+						if(($respuesta5 != "") && $resolver)
+						{
+							$respuesta5 = $respuesta5.",";
+						}
+						if($resolver)
+						{
+							$respuesta5 = $respuesta5.$value->getID();
+						}
+					}
 										
 				}
 				
+				if($resolver)
+				{
+					if($value->getID() == $preguntas["NOMBRE_1"])
+					{
+						$respuesta1 = $value->getHolguraTotal();
+					}
+					
+					if($value->getID() == $preguntas["NOMBRE_2"])
+					{
+						$respuesta2 = $value->getTEI();
+					}
+					
+					if($value->getID() == $preguntas["NOMBRE_3"])
+					{
+						$respuesta3 = $value->getTLI() + $value->getDuracion();
+					}
+				}
 				$gv->addEdge(array($p => $value->getID()), array("color" => $color));
 			}
+		}
+		//Si es necesario guardamos las respuestas correctas en la BD
+		if($resolver)
+		{
+			$consulta = "INSERT INTO respuestas_correctas(ID_GRAFO, RESPUESTA_1, RESPUESTA_2, RESPUESTA_3, RESPUESTA_4, RESPUESTA_5) VALUES({$preguntas["ID_GRAFO"]}, {$respuesta1}, {$respuesta2}, {$respuesta3}, {$respuesta4}, '{$respuesta5}');";
+			$conexion->query($consulta);
 		}
 		return $gv;
 	}
