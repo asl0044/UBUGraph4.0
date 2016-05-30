@@ -1,8 +1,18 @@
 <?php 
+	/**
+	* @author Adrián Santamaría Leal
+	*/
 	require_once("Image/GraphViz.php");
 	
 	require_once("./Actividad.php");
 	
+	/**
+	* Se generan actividades del grafo
+	* @param array nombres nombres de las actividades
+	* @param array precedencias precedencias de cada actividad
+	* @param array duraciones duraciones de las actividades
+	* @return grafo grafo con las actividades unidas
+	*/
 	function generarActividades($nombres,&$precedencias,$duraciones){
 		$grafo = array();
 		for($i = 0; $i < count($nombres); $i++)
@@ -20,6 +30,14 @@
 		return $grafo;
 	}
 	
+	/**
+	* Se establecen las precedencias de cada actividad en el grafo
+	* @param array grafo grafo con las actividades
+	* @param array nombres nombres de las actividades
+	* @param array precedencias precedencias de cada actividad
+	* @param array duraciones duraciones de las actividades
+	* @return grafo grafo con las actividades
+	*/
 	function establecerPrecedenciasPert(&$grafo,$nombres, $duraciones, $precedencias){
 		foreach($grafo as $value)
 		{
@@ -110,6 +128,14 @@
 		}
 	}
 	
+	/**
+	* Se establecen las ficticias sobre el grafo
+	* @param array nombres nombres de las actividades
+	* @param array precedencias precedencias de cada actividad
+	* @param array duraciones duraciones de las actividades
+	* @param array precedenciasRoy precedencias del grafo ROY
+	* @return nodos nodos que formas el grafo
+	*/
 	function establecerFicticias(&$grafo,$nombres, $duraciones, $precedencias,$precedenciasRoy){
 		//Ahora ya podemos calcular las ficticias.
 		$nFicticias = 1;
@@ -540,6 +566,13 @@
 		return $nodos;
 	}
 	
+	/**
+	* Se generan el grafo ROY correspondiente
+	* @param array nombres nombres de las actividades
+	* @param array precedenciasRoy precedencias del grafo ROY
+	* @param array duraciones duraciones de las actividades
+	* @return grafoRoy grafo Roy resuelto
+	*/
 	function generarRoy($nombres, $precedenciasRoy,$duraciones){
 		require_once ("funcionesRoy.php");
 		$grafoRoy = generarNodos($nombres,$precedenciasRoy,$duraciones);
@@ -548,6 +581,15 @@
 		return $grafoRoy;
 	}
 	
+	/**
+	* Se genera el grafo PERT correspondiente
+	* @param array grafo grafo con las actividades
+	* @param array nodos nodos del grafo
+	* @param boolean resolver indica si hay que hacer preguntas o no
+	* @param conexion conexion establecida
+	* @param array preguntas preguntas que se deben realizar
+	* @return gv grafo PERT resuelto
+	*/
 	function generarGrafoPert($grafo,$nodos,$resolver = false,$conexion = null,$preguntas = null) {
 		$gv = new Image_GraphViz(true, array("rankdir"=>"LR", "size"=>"8.333,11.111!"), "PERT", false, false);
 		//Añadimos los nodos al grafo

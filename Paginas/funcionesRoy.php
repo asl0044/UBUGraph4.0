@@ -1,7 +1,17 @@
 <?php
+	/**
+	* @author Adrián Santamaría Leal
+	*/
 	require_once ("Image/GraphViz.php");
 	require_once ("./Nodo.php");
 
+	/**
+	* Se generan nodos del grafo
+	* @param array nombres nombres de los nodos
+	* @param array precedencias precedencias de cada nodo
+	* @param array duraciones duraciones de los nodos
+	* @return grafo grafo con los nodso
+	*/
 	function generarNodos($nombres,&$precedencias,$duraciones){
 		$grafo = array();
 		for($i = 0; $i < count($nombres); $i++)
@@ -19,6 +29,14 @@
 		return $grafo;
 	}
 	
+	/**
+	* Se establecen las precedencias de cada nodo en el grafo
+	* @param array grafo grafo con los nodos
+	* @param array nombres nombres de los nodos
+	* @param array precedencias precedencias de cada nodo
+	* @param array duraciones duraciones de los nodos
+	* @return grafo grafo con las nodos unidos
+	*/
 	function establecerPrecedenciasRoy(&$grafo,$nombres,$duraciones, $precedencias){
 		for($i = 0; $i < count($nombres); $i++)
 		{
@@ -89,6 +107,10 @@
 		}
 	}
 	
+	/**
+	  * Calcula los tiempos para los nodos de un grafo
+	  * @param grafo array de Nodo con que conforman el grafo
+	  */
 	function calcularTiempos(&$grafo){
 		calcularTEI($grafo, $grafo["Inicio"]);
 		foreach($grafo as $value)
@@ -98,6 +120,15 @@
 		calcularTLI($grafo, $grafo["Fin"]);
 	}
 	
+	/**
+	* Se genera el grafo ROY correspondiente
+	* @param array grafo grafo con los nodos
+	* @param array nodos nodos del grafo
+	* @param boolean resolver indica si hay que hacer preguntas o no
+	* @param conexion conexion establecida
+	* @param array preguntas preguntas que se deben realizar
+	* @return gv grafo ROY resuelto
+	*/
 	function generarGrafoRoy($grafo,$resolver=false,$conexion = null,$preguntas = null){
 		$gv = new Image_GraphViz(true, array("rankdir"=>"LR", "size"=>"8.333,11.111!"), "ROY", false, false);
 		
@@ -169,12 +200,24 @@
 		return $gv;
 	}
 	
+	/**
+	* Se obtiene la imagen del nodo
+	* @param gv grafo ROY resuelto
+	*/
 	function dibujarGrafo($gv){
 		$data = $gv->fetch();
 		$data = substr($data, strpos($data, "<!--"));
 		return $data;
 	}
 	
+	/**
+	* Se genera una tabla de precedencias aleatoria
+	* @param int numAct número de actividades
+	* @param int probabilidad probabibilidad de enlace
+	* @param array nombres nombres de los nodos
+	* @param array precedencias precedencias de cada nodo
+	* @param array duraciones duraciones de los nodos
+	*/
 	function generarTablaPrecedencias($numAct,$probabilidad, $ids, &$nombres, &$precedencias, &$duraciones){
 		for($i = 0; $i < $numAct; $i++)
 		{

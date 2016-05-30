@@ -1,9 +1,19 @@
 <?php 
+	/**
+	* @author Adrián Santamaría Leal
+	*/
 	require_once("funcionesRoy.php");
 	require_once("funcionesPert.php");
 	require 'mustache/src/Mustache/Autoloader.php';
 	Mustache_Autoloader::register();
 	
+	/**
+	* Se dibuja la tabla en HTML
+	* @param array nombres nombres de las actividades
+	* @param array precedencias precedencias de cada actividad
+	* @param array duraciones duraciones de las actividades
+	* @return tablaHTML tabla en código HTML
+	*/
 	function dibujarTabla($nombres, $precedencias, $duraciones){
 		require_once("funciones.php");
 		require("../".idioma());
@@ -33,6 +43,13 @@
 		return $tablaHTML;
 	}
 	
+	/**
+	* Se obtiene el grafo ROY
+	* @param array nombres nombres de las actividades
+	* @param array precedencias precedencias de cada actividad
+	* @param array duraciones duraciones de las actividades
+	* @param grafo grafo con las actividades 
+	*/
 	function obtenerGrafoRoy($nombres,$duraciones,$precedencias,&$grafo){
 		$grafo = generarNodos($nombres,$precedencias,$duraciones);
 		establecerPrecedenciasRoy($grafo,$nombres,$duraciones,$precedencias);
@@ -42,6 +59,13 @@
 		return $data;
 	}
 	
+	/**
+	* Se obtiene el grafo PERT
+	* @param array nombres nombres de las actividades
+	* @param array precedencias precedencias de cada actividad
+	* @param array duraciones duraciones de las actividades
+	* @param grafo grafo con las actividades 
+	*/
 	function obtenerGrafoPert($nombres,$duraciones,$precedencias,&$grafo){
 		$precedenciasRoy = $precedencias;
 		$grafo = generarActividades($nombres,$precedencias,$duraciones);
@@ -52,6 +76,12 @@
 		return $data;
 	}
 	
+	/**
+	* Se genera una pregunta numérica aleatoria
+	* @param array nombres nombres de las actividades
+	* @param grafo grafo con las actividades 
+	* @return preg_resp array con la pregunta y la respuesta
+	*/
 	function generarPreguntaNumerica($nombres,$grafo){
 		$m = new Mustache_Engine;
 		$preguntas = array("¿Cuál es la holgura de la actividad {{actividad}}?","¿Cuál es el tiempo de finalización del proyecto?");
@@ -68,6 +98,11 @@
 		return array("pregunta"=>$pregunta,"respuesta"=>$respuesta);			
 	}
 	
+	/**
+	* Se genera una pregunta de verdadero o falso
+	* @param grafo grafo con las actividades 
+	* @return preg_resp array con la pregunta y la respuesta
+	*/
 	function generarPreguntaVF($grafo){
 		$numFicticias = 0;
 		foreach($grafo as $value){
@@ -83,6 +118,11 @@
 		return array("pregunta"=>$pregunta,"respuesta"=>$respuesta);	
 	}
 	
+	/**
+	* Se genera una pregunta de selección múltiple con una solo respuesta
+	* @param grafo grafo con las actividades 
+	* @return preg_resp array con la pregunta y la respuesta
+	*/
 	function generarPreguntaSelSimple($grafo){
 		$nodosCriticos = 0;
 		foreach($grafo as $value){
@@ -98,6 +138,12 @@
 		return array("pregunta"=>$pregunta,"respuesta"=>$respuesta);
 	}
 	
+	/**
+	* Se genera una pregunta de selección múltiple con varias respuestas
+	* @param array nombres nombres de las actividades
+	* @param grafo grafo con las actividades 
+	* @return preg_resp array con la pregunta y la respuesta
+	*/
 	function generarPreguntaSelMult($nombres,$grafo){
 		$nodosCriticos = array();
 		foreach($grafo as $value){
@@ -112,7 +158,16 @@
 		return array("pregunta"=>$pregunta,"respuesta"=>$respuesta,"nombres"=>$nombres);
 	}
 	
-	
+	/**
+	* Se escribe la pregunta con el formato adecuado (XML) en un fichero
+	* @param file archivo donde se va a escribir
+	* @param tabla tabla de precedencias en HTML
+	* @param preg_resp array con la pregunta y la respuesta correspondiente
+	* @param tipo tipo de pregunta que se va a escribir
+	* @param i número de pregunta
+	* @param data grafo resuelto
+	* @return file archivo con la pregunta escrita
+	*/
 	function escribirPregunta($file,$tabla,$preg_resp,$tipo,$i,$data){
 		fputs($file,"\n\t<question type=\"$tipo\">");	
 		fputs($file,"\n\t\t<name>\n\t\t\t<text>Pregunta $i</text>\n\t\t</name>");

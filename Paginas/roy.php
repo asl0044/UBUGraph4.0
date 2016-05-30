@@ -153,42 +153,6 @@
 				header("Location: ../paginas/error.php?e=".urlencode($texto["Roy_3"]));
 			}
 			
-			/**
-				  * Calcula los TEI para los nodos de un grafo
-				  * @param grafo array de Nodo con que conforman el grafo
-				  * @param n El nodo "INICIO" del grafo
-				  */
-				/*function calcularTEI($grafo, $n)
-				{
-					foreach($n->getPosteriores() as $value)
-					{
-						$grafo[$value]->setTEI(max($grafo[$value]->getTEI(), $n->getTEI() + $n->getDuracion()));
-					}
-					
-					foreach($n->getPosteriores() as $value)
-					{
-						calcularTEI($grafo, $grafo[$value]);
-					}
-				}*/
-				
-				 /**
-				  * Calcula los TLI para los nodos de un grafo
-				  * @param grafo array de Nodo con que conforman el grafo
-				  * @param n El nodo "FIN" del grafo
-				  */
-				/*function calcularTLI($grafo, $n)
-				{
-					//TLI = TLI(+1) - D(0)
-					foreach($n->getPrecedentes() as $value)
-					{
-						$grafo[$value]->setTLI(min($grafo[$value]->getTLI(), $n->getTLI() - $grafo[$value]->getDuracion()));
-					}
-					
-					foreach($n->getPrecedentes() as $value)
-					{
-						calcularTLI($grafo, $grafo[$value]);
-					}
-				}*/
 		?>
 	</body>
 </html>

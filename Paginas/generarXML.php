@@ -16,7 +16,6 @@
 	</head>
     <body>	
         <div id="main">
-			<!-- Formulario de seleccion de propiedades del grafo a genrerar -->
 			<form id="formGenerarXML" name="generarXML" action="/paginas/generaPregunta.php" method="post">
 	            <label class="ajustado"><b><?php echo $texto["Generar_1"]; ?></b></label>
 	            <input class="ajustado" required="required" type="number" name="numActividades" value="5" min="2" max="15"><BR>
