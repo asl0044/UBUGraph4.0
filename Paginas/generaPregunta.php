@@ -29,7 +29,7 @@
 			
 			$numPreguntas = $contNumericas + $contVF + $contSelSimple + $contSelMult;
 			
-			$file = fopen("./XML/prueba.xml","w");
+			$file = fopen("./XML/preguntas.xml","w");
 			fputs($file,"<?xml version=\"1.0\" ?>");
 			fputs($file,"\n<quiz>");
 					
